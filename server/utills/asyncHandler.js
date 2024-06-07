@@ -5,3 +5,5 @@ const asyncHandler = (requestHandler) => {
             .catch((err) => next(err))
     }
 }
+
+module.exports = asyncHandler;
