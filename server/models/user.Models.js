@@ -1,4 +1,7 @@
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken")
+const bcrypt = require("bcrypt");
+
 const userSchema = new mongoose.Schema({
     usernane: {
         type: String,
@@ -18,7 +21,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, "Full Name is required !!"],
     },
-    avater: {
+    avatar: {
         type: String,
         required: [true, 'Avatar is required !!']
     },
@@ -45,5 +48,31 @@ const userSchema = new mongoose.Schema({
         type: String
     }
 }, { timestamps: true })
+
+
+userSchema.pre("save", async function (next) {
+    if (!this.isModified("password")) {
+        return next();
+    }
+    this.password = await bcrypt.hash(this.password, 10);
+    next()
+})
+
+userSchema.methods.isPassword = async function (password) {
+    return await bcrypt.compare(password, this.password);
+}
+
+userSchema.methods.generateAccesToken = function () {
+    return jwt.sign({
+        //payload
+        _id: this._id,
+        email: this.email,
+        username: this.username,
+        fullName: this.fullName
+    })
+}
+
+userSchema.methods.generateRefreshToken--
+
 
 module.exports = mongoose.model("User", userSchema);
