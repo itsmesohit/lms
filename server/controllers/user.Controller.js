@@ -4,7 +4,7 @@ const validator = require("validator");
 const User = require("../models/user.Models");
 const { uploadImageOnCloudinary } = require("../utills/cloduinary");
 const ApiResponse = require("../utills/apiResponse");
-
+const jwt = require("jsonwebtoken");
 
 
 
@@ -181,8 +181,6 @@ const loginUser = asyncHandler(async (req, res) => {
         );
 });
 
-
-
 const logoutUser = asyncHandler(async (req, res) => {
     await User.findByIdAndUpdate(req.user._id, {
         $unset: {
@@ -204,5 +202,58 @@ const logoutUser = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, {}, "User LogOut Successfully !!"))
 })
 
+const refreshedAccessToken = asyncHandler(async (req, res) => {
 
-module.exports = { registerUser, loginUser, logoutUser }
+    const inocmingRefreshtoken = req.cookies.refreshToken || req.body.refreshToken
+
+    if (!inocmingRefreshtoken) {
+        throw new Error(401, 'Unauthorized request !')
+    }
+
+    try {
+        const decodedToken = jwt.verify(inocmingRefreshtoken, process.env.REFRESH_TOKEN_SECRET)
+
+        const user = await User.findById(decodedToken?._id)
+
+        if (!user) {
+            throw new Error(401, "Invalid refresh token !")
+        }
+
+        if (inocmingRefreshtoken !== user?.refreshToken) {
+            throw new Error(401, "Refresh token is expired or used !")
+        }
+
+        const options = {
+            httpOnly: true,
+            secure: true
+        }
+
+        const { accessToken: accessNewToken, refreshToken: refreshNewToken } = await generateAccessAndResfreshToken(user._id)
+        if (!accessNewToken || !refreshNewToken) {
+            throw new Error("Failed to generate new tokens.");
+        }
+
+        // console.log("access", accessNewToken);
+        // console.log("refresh", refreshNewToken);
+
+        return res
+            .status(200)
+            .cookie("accessToken", accessNewToken, options)
+            .cookie("refreshToken", refreshNewToken, options)
+            .json(new ApiResponse(200, {
+                accessToken: accessNewToken,
+                refreshToken: refreshNewToken
+            }, "Access token refreshed successfully !!"));
+
+
+
+
+    } catch (error) {
+
+        throw new Error("Invalid refresh Token !!")
+    }
+
+})
+
+
+module.exports = { registerUser, loginUser, logoutUser, refreshedAccessToken }
