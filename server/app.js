@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const cookieParser = require('cookie-parser')
-const mongoose = require('mongoose');
+
 
 
 
@@ -20,6 +20,7 @@ const app = express();
 
 // Middleware
 app.use(bodyParser.json()); // Parse JSON bodies
+app.use(express.json())
 app.use(cors()); // Enable Cross-Origin Resource Sharing
 app.use(cookieParser())
 // MongoDB connection

@@ -135,36 +135,39 @@ const registerUser = asyncHandler(async (req, res) => {
 
 
 const loginUser = asyncHandler(async (req, res) => {
-    const { email, password } = req.body
+    const { email, password } = req.body;
+
+    console.log("Request Body in loginUser:", req.body);
+
     if (!email || !password) {
-        throw Error("Email or Password is missing !!")
+        throw new Error("Email or Password is missing !!");
     }
 
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email });
 
     if (!user) {
-        throw Error("User not found !!")
+        throw new Error("User not found !!");
     }
 
-    const isCorrect = await user.isPasswordCorrect(password)
+    const isCorrect = await user.isPasswordCorrect(password);
 
     if (!isCorrect) {
-        throw Error("Invalid User credentials !!")
+        throw new Error("Invalid User credentials !!");
     }
 
-    const { accessToken, refreshToken } = await generateAccessAndResfreshToken(user._id)
+    const { accessToken, refreshToken } = await generateAccessAndResfreshToken(user._id);
 
-    const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken");
 
     const options = {
         httpOnly: true,
         secure: true,
-    }
+    };
 
     return res
         .status(200)
         .cookie("refreshToken", refreshToken, options)
-        .cokie("accesToken", accessToken, options)
+        .cookie("accessToken", accessToken, options)
         .json(
             new ApiResponse(200,
                 {
@@ -174,8 +177,9 @@ const loginUser = asyncHandler(async (req, res) => {
                 },
                 "User Logged In successfully !!"
             )
-        )
-})
+        );
+});
+
 
 
 const logoutUser = asyncHandler(async (req, res) => {

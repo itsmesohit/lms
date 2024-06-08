@@ -1,5 +1,7 @@
 const app = require('./app');
 const connectDB = require('./config/db');
+const express = require("express");
+app.use(express.json())
 
 require('dotenv').config(); // Load environment variables from .env file
 
