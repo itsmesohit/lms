@@ -3,12 +3,12 @@ const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt");
 
 const userSchema = new mongoose.Schema({
-    usernane: {
+    username: {
         type: String,
         required: [true, "Username is required !"],
-        uniqure: [true, "Username should be unique !"],
+        unique: [true, "Username should be unique !"],
         trim: true,
-        index: true,
+
     },
     email: {
         type: String,
@@ -31,9 +31,8 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        required: true,
         default: 'student',
-        enum: ['admin', 'instructor']
+        enum: ['admin', 'instructor', 'student']
     },
     password: {
         type: String,
@@ -41,7 +40,6 @@ const userSchema = new mongoose.Schema({
     },
     isVerified: {
         type: Boolean,
-        required: true,
         default: false
     },
     refreshToken: {
@@ -58,7 +56,7 @@ userSchema.pre("save", async function (next) {
     next()
 })
 
-userSchema.methods.isPassword = async function (password) {
+userSchema.methods.isPasswordCorrect = async function (password) {
     return await bcrypt.compare(password, this.password);
 }
 
@@ -77,7 +75,7 @@ userSchema.methods.generateAccesToken = function () {
     )
 }
 
-userSchema.methods.generateResfreshT = function () {
+userSchema.methods.generateResfreshToken = function () {
     return jwt.sign(
         {
             //payload

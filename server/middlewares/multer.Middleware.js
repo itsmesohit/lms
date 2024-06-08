@@ -1,31 +1,25 @@
 const multer = require('multer');
-const storage = multer.diskStorage({
+const fs = require('fs-extra');
+const path = require('path');
 
-    destination: function (req, res, cb) {
-        cb(null, "../public/temp")
+// Ensure the directory exists
+const uploadDir = path.join(__dirname, '../public/temp');
+fs.ensureDirSync(uploadDir);
+
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        cb(null, uploadDir);
     },
     filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
-        cb(null, file.fieldname + '-' + uniqueSuffix)
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, file.fieldname + '-' + uniqueSuffix);
     }
 });
 
-
-
-const imageFileFilter = (req, file, cb) => {
-    if (!file.mimetype.startsWith('image')) {
-        cb("Supported only image files !! ", false);
-    }
-    console.log(file)
-    cb(null, true)
-};
-
-const upload = multer({
-    storage: storage,
-    fileFilter: imageFileFilter,
-})
+const upload = multer({ storage: storage });
 
 module.exports = { upload };
+
 
 
 
