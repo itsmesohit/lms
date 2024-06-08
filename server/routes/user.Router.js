@@ -6,6 +6,9 @@ const verifyJWT = require("../middlewares/auth.Middleware")
 
 router.route("/register").post(upload.single('avatar'), registerUser);
 router.route("/login").post(loginUser);
+
+
+//secure_routes
 router.route("/logout").post(verifyJWT, logoutUser);
 
 
