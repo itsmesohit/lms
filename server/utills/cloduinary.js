@@ -1,5 +1,6 @@
 const cloudinary = require("cloudinary").v2;
 const ApiResponse = require("..//utills/apiResponse");
+const fs = require("fs");
 
 
 cloudinary.config({
@@ -17,7 +18,10 @@ exports.uploadImageOnCloudinary = async (LocalFilePath) => {
         }
 
         const response = await cloudinary.uploader.upload(LocalFilePath)
-        console.log(response);
+        //  console.log(response);
+
+        fs.unlinkSync(LocalFilePath);
+
         return response
 
 
@@ -40,7 +44,7 @@ exports.deleteImageOnCloudinary = async (CloudinaryUrl) => {
         const result = await cloudinary.uploader.destroy(publicId, {
             resource_type: "image"
         })
-        console.log("Cloudinary response :", result);
+        // console.log("Cloudinary response :", result);
         return result;
 
     } catch (error) {
