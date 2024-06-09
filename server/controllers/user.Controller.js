@@ -36,23 +36,7 @@ const isPasswordValidlength = (password) => {
     return password.length >= minLength
     // && hasSpecialChar.test(password) && hasNumber.test(password) && hasAlphabet.test(password);
 };
-const isPasswordHasSpecialCharacter = (password) => {
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/g;
-    return hasSpecialChar.test(password);
-}
-const isPasswordHasAlphabet = (password) => {
-    const hasAlphabet = /[A-Za-z]/g;
-    return hasAlphabet.test(password);
-}
-const isPasswordHasNumber = (password) => {
-    const hasNumber = /[0-9]/g;
-    return hasNumber.test(password);
-}
 
-const isNameValid = (name) => {
-    const minLength = 5;
-    return name.length >= minLength
-}
 
 
 const registerUser = asyncHandler(async (req, res) => {
@@ -255,5 +239,27 @@ const refreshedAccessToken = asyncHandler(async (req, res) => {
 
 })
 
+const changeCurrentPassword = asyncHandler(async (req, res) => {
 
-module.exports = { registerUser, loginUser, logoutUser, refreshedAccessToken }
+    const { oldPassword, newPassword, confirmPassword } = req.body
+
+    if (newPassword !== confirmPassword) {
+        throw new Error("New Password and confirm Password not matched !!")
+    }
+    const user = await User.findById(req.user?._id)
+    const isRight = await user.isPasswordCorrect(oldPassword)
+
+    if (!isRight) {
+        throw new Error("Invalid old Password !!");
+    }
+
+    user.password = newPassword
+    await user.save({ validateBeforeSave: false })
+
+
+    return res.status(200).json(new ApiResponse(200, {}, "Password Changed Succesfully !!"))
+
+})
+
+
+module.exports = { registerUser, loginUser, logoutUser, refreshedAccessToken, changeCurrentPassword }
