@@ -6,7 +6,7 @@ const { uploadImageOnCloudinary, deleteImageOnCloudinary } = require("../utills/
 const ApiResponse = require("../utills/apiResponse");
 const jwt = require("jsonwebtoken");
 const mailHelper = require("../utills/emailHelper");
-
+const crypto = require("crypto");
 
 
 const generateAccessAndResfreshToken = async (userId) => {
@@ -340,7 +340,7 @@ const forgetPassword = asyncHandler(async (req, res) => {
 
     await user.save({ validateBeforeSave: false });
 
-    const url = `${req.protocol}://${req.get("host")}/password/reset/${forgetToken}`;
+    const url = `${req.protocol}://${req.get("host")}/api/user/password/reset/${forgetToken}`;
 
     const message = `Click here to reset password \n\n <a></a>${url}`;
 
@@ -366,8 +366,45 @@ const forgetPassword = asyncHandler(async (req, res) => {
     }
 });
 
+const resetPassword = asyncHandler(async (req, res, next) => {
+    try {
+        const token = req.params.token;
+
+        const encryptedToken = crypto
+            .createHash("sha256")
+            .update(token)
+            .digest("hex");
+
+        const user = await User.findOne({
+            forgetPasswordToken: encryptedToken,
+            //forgetPasswordExpiry: { $gt: Date.now() }
+        });
+
+        console.log(user);
+        if (!user) {
+            throw new Error('Token is invalid or expired');
+        }
+
+        if (req.body.newPassword !== req.body.confirmPassword) {
+            throw new Error('Password and confirm password do not match');
+        }
+
+        user.password = req.body.newPassword;
+        user.forgetPasswordExpiry = undefined;
+        user.forgetPasswordToken = undefined;
+
+        await user.save();
+
+        return res.status(201).json(new ApiResponse(201, {}, "Password Reset Successfully, Login with new Password !!"));
+
+    } catch (error) {
+        console.error("Error resetting password:", error);
+        throw new Error(error.message)
+    }
+});
+
 
 module.exports = {
     registerUser, loginUser, logoutUser, refreshedAccessToken, changeCurrentPassword,
-    updateAccountDetails, updateUserAvatar, forgetPassword
+    updateAccountDetails, updateUserAvatar, forgetPassword, resetPassword
 }
