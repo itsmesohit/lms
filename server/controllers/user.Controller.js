@@ -5,6 +5,7 @@ const User = require("../models/user.Models");
 const { uploadImageOnCloudinary, deleteImageOnCloudinary } = require("../utills/cloduinary");
 const ApiResponse = require("../utills/apiResponse");
 const jwt = require("jsonwebtoken");
+const mailHelper = require("../utills/emailHelper");
 
 
 
@@ -319,7 +320,54 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, user, "Avatar updated successfully !!"));
 });
 
+
+const forgetPassword = asyncHandler(async (req, res) => {
+    const { email } = req.body;
+
+    console.log(email);
+    // Ensure email is provided
+    if (!email) {
+        throw new Error("Email is required !!");
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+        throw new Error("User not found !!");
+    }
+
+    const forgetToken = user.getForgotPasswordToken();
+
+    await user.save({ validateBeforeSave: false });
+
+    const url = `${req.protocol}://${req.get("host")}/password/reset/${forgetToken}`;
+
+    const message = `Click here to reset password \n\n <a></a>${url}`;
+
+    try {
+        await mailHelper({
+            email: user.email,
+            subject: "CODING_SPARK ---> Password Reset Email",
+            message
+        });
+
+        return res.status(200).json(new ApiResponse(200, {}, "Email sent successfully !!"));
+
+    } catch (error) {
+        // Log the error details
+        console.error("Error sending email:", error);
+
+        // Reset the user's password token fields if email sending fails
+        user.forgetPasswordToken = undefined;
+        user.forgetPasswordExpiry = undefined;
+        await user.save({ validateBeforeSave: false });
+
+        throw new Error(`Error sending email: ${error.message}`);
+    }
+});
+
+
 module.exports = {
     registerUser, loginUser, logoutUser, refreshedAccessToken, changeCurrentPassword,
-    updateAccountDetails, updateUserAvatar
+    updateAccountDetails, updateUserAvatar, forgetPassword
 }

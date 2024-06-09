@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken")
 const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 
 const userSchema = new mongoose.Schema({
     username: {
@@ -44,7 +45,9 @@ const userSchema = new mongoose.Schema({
     },
     refreshToken: {
         type: String
-    }
+    },
+    forgetPasswordToken: String,
+    forgetPasswordExpiry: Date
 }, { timestamps: true })
 
 
@@ -88,6 +91,19 @@ userSchema.methods.generateResfreshToken = function () {
             expiresIn: process.env.REFRESH_TOKEN_EXPIRY
         }
     )
+}
+
+//generate forget password string
+userSchema.methods.getForgotPasswordToken = function () {
+    const forgetPasswordToken = crypto.randomBytes(20).toString('hex');
+
+    //getting a hash 
+    this.forgetPasswordToken = crypto.createHash('sha256').update(forgetPasswordToken).digest('hex')
+
+    //expiry
+    this.forgetPasswordExpiry = Date.now() + 30 * 60 * 1000
+
+    return forgetPasswordToken;
 }
 
 

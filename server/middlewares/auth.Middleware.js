@@ -1,6 +1,5 @@
 const { Error } = require("mongoose");
 const asyncHandler = require("../utills/asyncHandler")
-const validator = require("validator");
 const User = require("../models/user.Models");
 const ApiResponse = require("../utills/apiResponse");
 const jwt = require("jsonwebtoken");
@@ -33,4 +32,15 @@ const verifyJWT = asyncHandler(async (req, res, next) => {
     }
 });
 
-module.exports = verifyJWT
+const isAdmin = asyncHandler(async (req, res, next) => {
+
+    if (req.user.role !== "admin") {
+        throw new Error("Unauthorized Access !!")
+    }
+
+    next();
+})
+
+module.exports = {
+    verifyJWT, isAdmin
+}
