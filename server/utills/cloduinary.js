@@ -34,21 +34,18 @@ exports.uploadImageOnCloudinary = async (LocalFilePath) => {
 
 exports.deleteImageOnCloudinary = async (CloudinaryUrl) => {
     if (!CloudinaryUrl) {
-        console.log("Cloudinary URL is not found !!")
-        return null
+        console.log("Cloudinary URL is not found !!");
+        return { result: "not found" };
     }
     try {
-
         const publicId = CloudinaryUrl.split('/').pop().split('.')[0];
-
         const result = await cloudinary.uploader.destroy(publicId, {
             resource_type: "image"
-        })
-        // console.log("Cloudinary response :", result);
+        });
         return result;
-
     } catch (error) {
-        console.error("Error occurse during deleting the image from cloudinary ")
+        console.error("Error occurred during deleting the image from Cloudinary:", error);
+        return { result: "error", error: error.message };
     }
-}
+};
 

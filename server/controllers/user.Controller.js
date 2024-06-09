@@ -2,7 +2,7 @@ const { Error } = require("mongoose");
 const asyncHandler = require("../utills/asyncHandler")
 const validator = require("validator");
 const User = require("../models/user.Models");
-const { uploadImageOnCloudinary } = require("../utills/cloduinary");
+const { uploadImageOnCloudinary, deleteImageOnCloudinary } = require("../utills/cloduinary");
 const ApiResponse = require("../utills/apiResponse");
 const jwt = require("jsonwebtoken");
 
@@ -287,8 +287,39 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
 
 })
 
+const updateUserAvatar = asyncHandler(async (req, res) => {
+    const avatarLocalPath = req.file?.path;
+
+    if (!avatarLocalPath) {
+        throw new ApiError(404, "Avatar file is missing !!");
+    }
+
+    const user = await User.findById(req.user?._id);
+    if (!user) {
+        throw new ApiError(404, "User not found !!");
+    }
+
+    const oldAvatarImage = user.avatar;
+    const deleteResult = await deleteImageOnCloudinary(oldAvatarImage);
+
+    if (deleteResult.result !== 'ok' && deleteResult.result !== 'not found') {
+        console.error("Failed to delete old avatar image from Cloudinary:", deleteResult);
+        return res.status(500).json(new ApiResponse(500, "Unable to delete the old avatar from Cloudinary !!"));
+    }
+
+    const avatar = await uploadImageOnCloudinary(avatarLocalPath);
+
+    if (!avatar.secure_url) {
+        throw new ApiError(404, "Error while uploading the new avatar !!");
+    }
+
+    user.avatar = avatar.secure_url;
+    await user.save();
+
+    return res.status(200).json(new ApiResponse(200, user, "Avatar updated successfully !!"));
+});
 
 module.exports = {
     registerUser, loginUser, logoutUser, refreshedAccessToken, changeCurrentPassword,
-    updateAccountDetails
+    updateAccountDetails, updateUserAvatar
 }
