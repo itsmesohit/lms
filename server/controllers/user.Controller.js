@@ -261,10 +261,34 @@ const changeCurrentPassword = asyncHandler(async (req, res) => {
 
 })
 
-const getCurrentUser = asyncHandler(async (req, res) => {
+const updateAccountDetails = asyncHandler(async (req, res) => {
+    const { fullName, email } = req.body;
+    if (!fullName || !email) {
+        throw new Error("All fields are required!!")
+    }
 
-    return res.status(200).json(new ApiResponse(200, req.user, "current User fetched Successfully !!"))
+    const user = await User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set: {
+                fullName,
+                email
+            }
+        },
+        {
+            new: true
+        }
+
+    ).select("-password -refreshToken");
+
+
+    return res.status(200).json(new ApiResponse(200, user, "Account Details Update Successfully !!"))
+
+
 })
 
 
-module.exports = { registerUser, loginUser, logoutUser, refreshedAccessToken, changeCurrentPassword, getCurrentUser }
+module.exports = {
+    registerUser, loginUser, logoutUser, refreshedAccessToken, changeCurrentPassword,
+    updateAccountDetails
+}
