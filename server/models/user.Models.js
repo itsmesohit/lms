@@ -49,7 +49,9 @@ const userSchema = new mongoose.Schema({
     profileVerificationToken: String,
     profileVerifcationExpiry: Date,
     forgetPasswordToken: String,
-    forgetPasswordExpiry: Date
+    forgetPasswordExpiry: Date,
+    verificationAccountToken: String,
+    verificationAccountExpiry: Date
 }, { timestamps: true })
 
 
@@ -106,6 +108,19 @@ userSchema.methods.getForgotPasswordToken = function () {
     this.forgetPasswordExpiry = Date.now() + 30 * 60 * 1000
 
     return forgetPasswordToken;
+}
+
+//generate verification
+userSchema.methods.getVerificationToken = function () {
+    const verificationToken = crypto.randomBytes(20).toString('hex');
+
+    //getting a hash 
+    this.verificationAccountToken = crypto.createHash('sha256').update(verificationToken).digest('hex')
+
+    //expiry
+    this.verificationAccountExpiry = Date.now() + 30 * 60 * 1000
+
+    return verificationToken;
 }
 
 

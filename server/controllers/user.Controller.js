@@ -27,18 +27,10 @@ const generateAccessAndResfreshToken = async (userId) => {
 
     }
 }
-
-
 const isPasswordValidlength = (password) => {
     const minLength = 8;
-    // const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/g;
-    // const hasNumber = /[0-9]/g;
-    // const hasAlphabet = /[A-Za-z]/g;
     return password.length >= minLength
-    // && hasSpecialChar.test(password) && hasNumber.test(password) && hasAlphabet.test(password);
 };
-
-
 
 const registerUser = asyncHandler(async (req, res) => {
     //1.take a data from fontend
@@ -114,11 +106,77 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new Error("Something went wrong during registering user !!");
     }
 
-    return res.status(201).json(
-        new ApiResponse(201, createdUser, "User registered successfully !!")
-    );
+    //account verfication login 
+    const verifyToken = createdUser.getVerificationToken();
+
+    await createdUser.save({ validateBeforeSave: false });
+
+    const url = `${req.protocol}://${req.get("host")}/api/user/verify-account/${verifyToken}`;
+
+    const message = `Click here to verify your account  \n\n <a></a>${url}`;
+
+    try {
+        await mailHelper({
+            email: createdUser.email,
+            subject: "CODING_SPARK ---> Account Verification",
+            message
+        });
+
+        return res.status(200).json(new ApiResponse(200, {}, "Account verification mail sent successfully !!"));
+
+    } catch (error) {
+        // Log the error details
+        console.error("Error sending email:", error);
+
+        // Reset the user's password token fields if email sending fails
+        createdUser.verificationAccountToken = undefined;
+        createdUser.verificationAccountExpiry = undefined;
+        await createdUser.save({ validateBeforeSave: false });
+
+        throw new Error(`Error sending email: ${error.message}`);
+    }
+
+    // return res.status(201).json(
+    //     new ApiResponse(201, createdUser, "User registered successfully !!")
+    // // );
 });
 
+const accountVerify = asyncHandler(async (req, res, next) => {
+    try {
+        const token = req.params.token;
+
+        const encryptedToken = crypto
+            .createHash("sha256")
+            .update(token)
+            .digest("hex");
+
+        const user = await User.findOne({
+            verificationAccountToken: encryptedToken,
+            verificationAccountExpiry: { $gt: Date.now() }
+        });
+
+        console.log(user);
+        if (!user) {
+            throw new Error('Token is invalid or expired');
+        }
+
+        if (user.isVerified == false) {
+            user.isVerified = true
+        }
+
+
+        user.verificationAccountExpiry = undefined;
+        user.verificationAccountToken = undefined;
+
+        await user.save();
+
+        return res.status(201).json(new ApiResponse(201, {}, "User verified Successfully !!"));
+
+    } catch (error) {
+        console.error("Error resetting password:", error);
+        throw new Error(error.message)
+    }
+});
 
 const loginUser = asyncHandler(async (req, res) => {
     const { email, password } = req.body;
@@ -320,7 +378,6 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, user, "Avatar updated successfully !!"));
 });
 
-
 const forgetPassword = asyncHandler(async (req, res) => {
     const { email } = req.body;
 
@@ -377,7 +434,7 @@ const resetPassword = asyncHandler(async (req, res, next) => {
 
         const user = await User.findOne({
             forgetPasswordToken: encryptedToken,
-            //forgetPasswordExpiry: { $gt: Date.now() }
+            forgetPasswordExpiry: { $gt: Date.now() }
         });
 
         console.log(user);
@@ -404,7 +461,8 @@ const resetPassword = asyncHandler(async (req, res, next) => {
 });
 
 
+
 module.exports = {
     registerUser, loginUser, logoutUser, refreshedAccessToken, changeCurrentPassword,
-    updateAccountDetails, updateUserAvatar, forgetPassword, resetPassword
+    updateAccountDetails, updateUserAvatar, forgetPassword, resetPassword, accountVerify
 }
