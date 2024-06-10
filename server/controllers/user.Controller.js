@@ -485,10 +485,27 @@ const adminGetSingleUser = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, user, "User get successfully !!"))
 })
 
+const adminUpdateUser = asyncHandler(async (req, res) => {
+    const newData = {
+
+        role: req.body.role
+    }
+
+    const user = await User.findByIdAndUpdate(req.params.id, newData, {
+        new: true,
+        runValidators: true,
+        useFindAndModify: false,
+    })
+
+    await user.save()
+
+    res.status(200).json(new ApiResponse(200, user, "Updated Succesffully!!"))
+})
+
 
 
 module.exports = {
     registerUser, loginUser, logoutUser, refreshedAccessToken, changeCurrentPassword,
     updateAccountDetails, updateUserAvatar, forgetPassword, resetPassword, accountVerify,
-    userDashboard, adminGetAllUser, adminGetSingleUser
+    userDashboard, adminGetAllUser, adminGetSingleUser, adminUpdateUser
 }
