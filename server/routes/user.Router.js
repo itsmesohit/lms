@@ -7,8 +7,9 @@ const { registerUser, loginUser, logoutUser, refreshedAccessToken,
     resetPassword,
     accountVerify,
     userDashboard,
+    adminGetAllUser,
 } = require("../controllers/user.Controller");
-const { verifyJWT } = require("../middlewares/auth.Middleware")
+const { verifyJWT, isAdmin } = require("../middlewares/auth.Middleware")
 
 router.route("/register").post(upload.single('avatar'), registerUser);
 router.route("/login").post(loginUser);
@@ -24,5 +25,8 @@ router.route("/update-details").post(verifyJWT, updateAccountDetails);
 router.route("/update-avatar").post(verifyJWT, upload.single('avatar'), updateUserAvatar);
 router.route("/dashboard").get(verifyJWT, userDashboard);
 
+
+//admin_routes
+router.route("/admin/users").get(verifyJWT, isAdmin, adminGetAllUser)
 
 module.exports = router

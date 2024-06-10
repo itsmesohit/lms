@@ -462,10 +462,19 @@ const resetPassword = asyncHandler(async (req, res, next) => {
 
 const userDashboard = asyncHandler(async (req, res) => {
     const user = await User.findById(req.user._id)
+    if (!user) {
+        throw new Error("User not found !!")
+    }
     res.status(200).json({
         success: true,
         user,
     })
+})
+
+const adminGetAllUser = asyncHandler(async (req, res) => {
+    const users = await User.find()
+
+    res.status(200).json(new ApiResponse(200, users, "Get all Users Successfully !!"))
 })
 
 
@@ -473,5 +482,5 @@ const userDashboard = asyncHandler(async (req, res) => {
 module.exports = {
     registerUser, loginUser, logoutUser, refreshedAccessToken, changeCurrentPassword,
     updateAccountDetails, updateUserAvatar, forgetPassword, resetPassword, accountVerify,
-    userDashboard
+    userDashboard, adminGetAllUser
 }
