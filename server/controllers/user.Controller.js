@@ -502,10 +502,26 @@ const adminUpdateUser = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, user, "Updated Succesffully!!"))
 })
 
+const adminDeleteUser = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.id)
+    if (!user) {
+        throw new Error("User not exist !!");
+    }
+    const cloudinary_url = user.avatar;
+    const deleteResult = await deleteImageOnCloudinary(cloudinary_url)
+    if (deleteResult.result !== 'ok') {
+        console.error("Failed to delete avatar image from Cloudinary:", deleteResult);
+        return res.status(500).json(new ApiResponse(500, {}, "Unable to delete the old coverImage form cloudinary !!"));
+    }
+    await user.deleteOne()
+
+    return res.status(200).json(new ApiResponse(200, {}, "User deleted Successfully !!"))
+})
+
 
 
 module.exports = {
     registerUser, loginUser, logoutUser, refreshedAccessToken, changeCurrentPassword,
     updateAccountDetails, updateUserAvatar, forgetPassword, resetPassword, accountVerify,
-    userDashboard, adminGetAllUser, adminGetSingleUser, adminUpdateUser
+    userDashboard, adminGetAllUser, adminGetSingleUser, adminUpdateUser, adminDeleteUser
 }

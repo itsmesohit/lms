@@ -10,6 +10,7 @@ const { registerUser, loginUser, logoutUser, refreshedAccessToken,
     adminGetAllUser,
     adminGetSingleUser,
     adminUpdateUser,
+    adminDeleteUser,
 } = require("../controllers/user.Controller");
 const { verifyJWT, isAdmin } = require("../middlewares/auth.Middleware")
 
@@ -33,6 +34,7 @@ router.route("/admin/users").get(verifyJWT, isAdmin, adminGetAllUser)
 router.route('/admin/user/:id')
     .get(verifyJWT, isAdmin, adminGetSingleUser)
     .patch(verifyJWT, isAdmin, adminUpdateUser)
+    .delete(verifyJWT, isAdmin, adminDeleteUser)
 
 
 //instructor_routes
