@@ -8,6 +8,7 @@ const { registerUser, loginUser, logoutUser, refreshedAccessToken,
     accountVerify,
     userDashboard,
     adminGetAllUser,
+    adminGetSingleUser,
 } = require("../controllers/user.Controller");
 const { verifyJWT, isAdmin } = require("../middlewares/auth.Middleware")
 
@@ -28,5 +29,10 @@ router.route("/dashboard").get(verifyJWT, userDashboard);
 
 //admin_routes
 router.route("/admin/users").get(verifyJWT, isAdmin, adminGetAllUser)
+router.route('/admin/user/:id').get(verifyJWT, isAdmin, adminGetSingleUser)
+
+
+//instructor_routes
+
 
 module.exports = router

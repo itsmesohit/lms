@@ -41,6 +41,25 @@ const isAdmin = asyncHandler(async (req, res, next) => {
     next();
 })
 
+
+const isInstructor = asyncHandler(async (req, res, next) => {
+    if (req.user.role !== "student") {
+        throw new Error("Unauthorized Access !!")
+    }
+
+    next();
+})
+
+//robust approach
+const customRoles = (...roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
+            return next(new Error("You are not allowed for this resources"))
+        }
+        next();
+    }
+}
+
 module.exports = {
-    verifyJWT, isAdmin
+    verifyJWT, isAdmin, customRoles, isInstructor
 }

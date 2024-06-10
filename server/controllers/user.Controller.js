@@ -477,10 +477,18 @@ const adminGetAllUser = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, users, "Get all Users Successfully !!"))
 })
 
+const adminGetSingleUser = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.id)
+    if (!user) {
+        throw new Error("user not found !!")
+    }
+    res.status(200).json(new ApiResponse(200, user, "User get successfully !!"))
+})
+
 
 
 module.exports = {
     registerUser, loginUser, logoutUser, refreshedAccessToken, changeCurrentPassword,
     updateAccountDetails, updateUserAvatar, forgetPassword, resetPassword, accountVerify,
-    userDashboard, adminGetAllUser
+    userDashboard, adminGetAllUser, adminGetSingleUser
 }
