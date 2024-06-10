@@ -460,9 +460,18 @@ const resetPassword = asyncHandler(async (req, res, next) => {
     }
 });
 
+const userDashboard = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id)
+    res.status(200).json({
+        success: true,
+        user,
+    })
+})
+
 
 
 module.exports = {
     registerUser, loginUser, logoutUser, refreshedAccessToken, changeCurrentPassword,
-    updateAccountDetails, updateUserAvatar, forgetPassword, resetPassword, accountVerify
+    updateAccountDetails, updateUserAvatar, forgetPassword, resetPassword, accountVerify,
+    userDashboard
 }

@@ -6,6 +6,7 @@ const { registerUser, loginUser, logoutUser, refreshedAccessToken,
     forgetPassword,
     resetPassword,
     accountVerify,
+    userDashboard,
 } = require("../controllers/user.Controller");
 const { verifyJWT } = require("../middlewares/auth.Middleware")
 
@@ -21,7 +22,7 @@ router.route("/refresh-access-token").post(refreshedAccessToken)
 router.route("/change-password").post(verifyJWT, changeCurrentPassword);
 router.route("/update-details").post(verifyJWT, updateAccountDetails);
 router.route("/update-avatar").post(verifyJWT, upload.single('avatar'), updateUserAvatar);
-
+router.route("/dashboard").get(verifyJWT, userDashboard);
 
 
 module.exports = router
