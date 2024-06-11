@@ -88,17 +88,6 @@ const reviewSchema = new mongoose.Schema({
     }
 });
 
-// Price Schema
-const priceSchema = new mongoose.Schema({
-    amount: {
-        type: Number,
-        //required: true
-    },
-    currency: {
-        type: String,
-        //required: true
-    }
-});
 
 // Course Schema
 const courseSchema = new mongoose.Schema(
@@ -106,22 +95,32 @@ const courseSchema = new mongoose.Schema(
 
         title: {
             type: String,
-            //required: [true, "Course title is required"]
+            required: [true, "Course title is required"]
         },
         description: {
             type: String,
-            // required: [true, "Description is required"]
+            required: [true, "Description is required"]
         },
         instructor: instructorSchema,
         modules: [moduleSchema],
-        price: priceSchema,
+        price: {
+            amount: {
+                type: Number,
+                //required: true
+            },
+            currency: {
+                type: String,
+                //required: true
+            }
+        },
         duration: {
             type: String,
-            //required: [true, "Duration is required"]
+            required: [true, "Duration is required"]
         },
         level: {
+            type: String,
+            enum: ["Beginner", "Intermediate", "Advanced"],
             default: "Beginner",
-            enum: ["Beginner", "Intermediate", "Advanced"]
             //required: [true, "Level is required"]
         },
         tags: [String],
@@ -138,6 +137,11 @@ const courseSchema = new mongoose.Schema(
         published: {
             type: Boolean,
             default: false
+        },
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+            required: true,
         }
     },
     {

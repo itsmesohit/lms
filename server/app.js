@@ -14,7 +14,7 @@ require('dotenv').config(); // Load environment variables from .env file
 const Home = require('./routes/Home');
 const userRoutes = require('./routes/user.Router')
 const instructorRoutes = require("./routes/instructor.Router")
-
+const courseRoutes = require("./routes/course.Router")
 
 // Initialize Express app
 const app = express();
@@ -22,11 +22,12 @@ const app = express();
 // Middleware
 app.use(bodyParser.json()); // Parse JSON bodies
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors()); // Enable Cross-Origin Resource Sharing
 app.use(cookieParser())
 // MongoDB connection
-
-
 
 
 
@@ -34,6 +35,7 @@ app.use(cookieParser())
 app.use('/', Home);
 app.use('/api/user', userRoutes);
 app.use('/api/instructor', instructorRoutes)
+app.use('/api/course', courseRoutes)
 
 // Error handling middleware
 app.use((err, req, res, next) => {
