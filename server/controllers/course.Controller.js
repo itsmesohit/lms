@@ -3,6 +3,7 @@ const User = require("../models/user.Models");
 const Instructor = require("../models/instructor.Model");
 const asyncHandler = require("../utills/asyncHandler");
 const ApiResponse = require("../utills/apiResponse");
+const { isValidObjectId } = require("mongoose");
 
 const createCourse = asyncHandler(async (req, res) => {
 
@@ -55,4 +56,72 @@ const getAllCourse = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, coursesObj, "All courses fetched !!"))
 });
 
-module.exports = { createCourse, getAllCourse };
+const getSingleCourse = asyncHandler(async (req, res) => {
+    if (!isValidObjectId(req.params.id)) {
+        throw new Error("Invalid course id !!")
+    }
+    const course = await Course.findById(req.params.id);
+
+    return res.status(200).json(new ApiResponse(200, course, "get a course successfully"))
+})
+
+
+const adminGetSingleCourse = asyncHandler(async (req, res) => {
+    if (!isValidObjectId(req.params.id)) {
+        throw new Error("Invalid course id !!")
+    }
+    const course = await Course.findById(req.params.id);
+
+    return res.status(200).json(new ApiResponse(200, course, "get a course successfully"))
+})
+
+const adminUpdateSingleCourse = asyncHandler(async (req, res) => {
+
+    //we will update this controller function when we have a poster of course
+
+    if (!isValidObjectId(req.params.id)) {
+        throw new Error("course id is not valid !!")
+    }
+    //it is not a correct approach !! I have to discuss with sir
+    const course = await Course.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: false,
+        useFindAndModify: false
+    });
+
+    return res.status(200).json(new ApiResponse(200, course, "SuccessFully Updated !!"))
+
+
+
+
+
+
+})
+
+const adminDeleteSingleCourse = asyncHandler(async (req, res) => {
+    if (!isValidObjectId(req.params.id)) {
+        throw new Error("Invalid course id")
+    }
+
+    const course = await Course.findByIdAndDelete(req.params.id);
+    return res.status(200).json(new ApiResponse(200, {}, "Deleted Successfully !"))
+})
+
+
+
+
+
+
+
+
+
+
+
+
+module.exports = {
+    createCourse, getAllCourse,
+    getSingleCourse,
+    adminUpdateSingleCourse,
+    adminGetSingleCourse,
+    adminDeleteSingleCourse
+};
