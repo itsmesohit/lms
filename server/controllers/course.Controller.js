@@ -35,8 +35,24 @@ const createCourse = asyncHandler(async (req, res) => {
         user: req.user.id
     })
 
-    return res.status(201).json(new ApiResponse(201, course, "Course Created Successfully !!"))
+    await course.save();
+
+    const courseObj = course.toObject();
+
+    return res.status(201).json({
+        status: "true",
+        message: "course created",
+        courseObj,
+    })
 
 });
 
-module.exports = { createCourse };
+const getAllCourse = asyncHandler(async (req, res) => {
+    const courses = await Course.find()
+
+    const coursesObj = courses.map(course => course.toObject());
+
+    return res.status(200).json(new ApiResponse(200, coursesObj, "All courses fetched !!"))
+});
+
+module.exports = { createCourse, getAllCourse };

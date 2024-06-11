@@ -52,8 +52,8 @@ const createInstructor = asyncHandler(async (req, res) => {
     const instructor = await Instructor.create({
         name,
         bio,
-        email,
-        linkdenProfile,
+        email: email,
+        linkdenProfile: linkdenProfile,
         profilePicture: profile.secure_url
 
     });
@@ -62,6 +62,8 @@ const createInstructor = asyncHandler(async (req, res) => {
 
     return res.status(201).json(new ApiResponse(201, instructor, "Instructor is created!!"))
 })
+
+
 
 
 module.exports = { createInstructor }

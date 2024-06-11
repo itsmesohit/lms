@@ -1,10 +1,11 @@
 const { createInstructor } = require("../controllers/instructor.Controller");
+const { isAdmin, verifyJWT } = require("../middlewares/auth.Middleware");
 const { upload } = require("../middlewares/multer.Middleware");
 
 const router = require("express").Router();
 
 
-
-router.route('/create').post(upload.single("profilePicture"), createInstructor)
+//only can add instructor
+router.route('/create').post(verifyJWT, isAdmin, upload.single("profilePicture"), createInstructor)
 
 module.exports = router
