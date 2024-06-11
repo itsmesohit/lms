@@ -6,11 +6,12 @@ const crypto = require("crypto");
 const userSchema = new mongoose.Schema({
     username: {
         type: String,
-        required: [true, "Username is required !"],
+        //required: [true, "Username is required !"],
         unique: [true, "Username should be unique !"],
         trim: true,
 
     },
+    googelId: String,
     email: {
         type: String,
         required: [true, "Email is required !!"],
@@ -20,11 +21,11 @@ const userSchema = new mongoose.Schema({
     },
     fullName: {
         type: String,
-        required: [true, "Full Name is required !!"],
+        //required: [true, "Full Name is required !!"],
     },
     avatar: {
         type: String,
-        required: [true, 'Avatar is required !!']
+        // required: [true, 'Avatar is required !!']
     },
     gender: {
         type: String,
@@ -37,7 +38,7 @@ const userSchema = new mongoose.Schema({
     },
     password: {
         type: String,
-        required: true
+        // required: true
     },
     isVerified: {
         type: Boolean,

@@ -519,9 +519,27 @@ const adminDeleteUser = asyncHandler(async (req, res) => {
 })
 
 
+const loadAuth = (req, res) => {
+    res.render('auth');
+}
+
+const successGoogleLogin = (req, res) => {
+    if (!req.user) {
+        res.redirect('failure');
+    }
+    console.log(req.user);
+    res.send("Welcome " + req.user.email);
+}
+
+const failureGoogleLogin = (req, res) => {
+    res.send("Error");
+}
+
+
 
 module.exports = {
     registerUser, loginUser, logoutUser, refreshedAccessToken, changeCurrentPassword,
     updateAccountDetails, updateUserAvatar, forgetPassword, resetPassword, accountVerify,
-    userDashboard, adminGetAllUser, adminGetSingleUser, adminUpdateUser, adminDeleteUser
+    userDashboard, adminGetAllUser, adminGetSingleUser, adminUpdateUser, adminDeleteUser,
+    successGoogleLogin, failureGoogleLogin, loadAuth
 }

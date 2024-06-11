@@ -10,9 +10,6 @@ const instructorSchema = new mongoose.Schema({
         type: String,
         // required: [true, "Instructor bio is required"]
     },
-    linkdenProfile: {
-        type: String
-    },
     profilePicture: {
         type: String,
         // required: [true, "Instructor profile picture is required"]

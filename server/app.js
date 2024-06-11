@@ -13,6 +13,7 @@ require('dotenv').config(); // Load environment variables from .env file
 // Import routes
 const Home = require('./routes/Home');
 const userRoutes = require('./routes/user.Router')
+const instructorRoutes = require("./routes/instructor.Router")
 
 
 // Initialize Express app
@@ -32,6 +33,7 @@ app.use(cookieParser())
 // Define routes
 app.use('/', Home);
 app.use('/api/user', userRoutes);
+app.use('/api/instructor', instructorRoutes)
 
 // Error handling middleware
 app.use((err, req, res, next) => {
