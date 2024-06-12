@@ -16,6 +16,7 @@ const userRoutes = require('./routes/user.Router')
 const instructorRoutes = require("./routes/instructor.Router")
 const courseRoutes = require("./routes/course.Router")
 const paymentRoutes = require("./routes/payment.Router")
+const purchasedCourseRoutes = require("./routes/purchasedCourse.Router")
 // Initialize Express app
 const app = express();
 
@@ -36,8 +37,8 @@ app.use('/', Home);
 app.use('/api/user', userRoutes);
 app.use('/api/instructor', instructorRoutes)
 app.use('/api/course', courseRoutes)
-app.use('api/payment', paymentRoutes)
-
+app.use('/api/payment', paymentRoutes)
+app.use('/api/purchasedcourse', purchasedCourseRoutes)
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
