@@ -122,7 +122,7 @@ const addreviews = asyncHandler(async (req, res) => {
 
     return res.status(200).json(new ApiResponse(200, course, "Review added successfully!!"));
 });
-//debug
+
 const deleteReview = asyncHandler(async (req, res) => {
     const courseId = req.params.id;
     const userId = req.user._id;
@@ -160,11 +160,6 @@ const deleteReview = asyncHandler(async (req, res) => {
     // Return the updated course information
     return res.status(200).json(new ApiResponse(200, course, "Review deleted successfully!!"));
 });
-
-
-//delete review by admin
-
-
 
 const getOnlyReviewsForOneCourse = asyncHandler(async (req, res) => {
     const course = await Course.findById(req.params.id)
