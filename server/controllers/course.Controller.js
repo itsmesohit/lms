@@ -65,13 +65,12 @@ const getSingleCourse = asyncHandler(async (req, res) => {
     return res.status(200).json(new ApiResponse(200, course, "get a course successfully"))
 })
 
-//debug
 
 const addreviews = asyncHandler(async (req, res) => {
     const { rating, comment } = req.body;
-    console.log(req.body);
-    console.log("rating", rating);
-    console.log("comment", comment);
+    // console.log(req.body);
+    // console.log("rating", rating);
+    // console.log("comment", comment);
     const courseId = req.params.id;
 
     // Making a review
@@ -125,36 +124,48 @@ const addreviews = asyncHandler(async (req, res) => {
 });
 //debug
 const deleteReview = asyncHandler(async (req, res) => {
-    const { courseId } = req.params.id
+    const courseId = req.params.id;
+    const userId = req.user._id;
+
+
     const course = await Course.findById(courseId);
 
+    console.log("course :", course);
+
+    if (!course) {
+        return res.status(404).json(new ApiResponse(404, null, "Course not found"));
+    }
+
+    // Filter out the review of the logged-in user
     const reviews = course.reviews.filter(
-        (rev) => rev.user.toString !== req.user._id.toString()
-    )
-    const numberOfReview = reviews.length
+        (rev) => rev.user.toString() !== userId.toString()
+    );
 
-    course.reviewsCount = numberOfReview
+    // Update the reviews count
+    const numberOfReviews = reviews.length;
 
-    course.ratings = course.reviews.reduce((acc, item) => item.rating + acc, 0) / course.reviews.length;
+    // Calculate the new ratings based on the updated reviews
+    const ratings = reviews.length > 0
+        ? (reviews.reduce((acc, item) => item.rating + acc, 0) / reviews.length).toFixed(1)
+        : 0;
 
-    //update review 
-    await Course.findByIdAndUpdate(courseId, {
-        reviews,
-        ratings,
-        reviewsCount
-    }, {
-        new: true,
-        runValidators: true,
-        useFindAndModify: false,
-    })
+    // Update the course with the new reviews and ratings
+    course.reviews = reviews;
+    course.reviewsCount = numberOfReviews;
+    course.ratings = ratings;
 
-})
+    // Save the updated 
+    await course.save({ validateBeforeSave: false });
+
+    // Return the updated course information
+    return res.status(200).json(new ApiResponse(200, course, "Review deleted successfully!!"));
+});
+
 
 //delete review by admin
 
 
 
-//debug
 const getOnlyReviewsForOneCourse = asyncHandler(async (req, res) => {
     const course = await Course.findById(req.params.id)
     return res.status(200).json(new ApiResponse(200, course.reviews, "ALL review get for particular course"))
