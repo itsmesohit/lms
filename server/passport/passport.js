@@ -1,47 +1,44 @@
-const passport = require("passport");
-const GoogleStrategy = require("passport-google-oauth20").Strategy
-const User = require("../models/user.Models")
-const mongoose = require("mongoose");
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const User = require('../models/user.Models');
 
-require('dotenv').config(); // Load environment variables from .env file
-
-
-
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-})
-
-passport.deserializeUser((id, done) => {
-    User.findById(id).then((user) => {
-        done(null, user);
-    })
-});
-// console.log("Google Client ID:", process.env.GOOGLE_CLIENT_ID);
-// console.log("Google Client Secret:", process.env.GOOGLE_CLIENT_SECRET);
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "http://localhost:4000/auth/google/callback"
+    callbackURL: "/auth/google/callback"
 },
-    (accessToken, refreshToken, profile, done) => {
-        User.findOne({ googelId: profile.id }).then((currentUser) => {
-            if (currentUser) {
-                console.log('user is', currentUser)
-                done(null, currentUser)
+    async (accessToken, refreshToken, profile, done) => {
+        try {
+            // Check if user already exists
+            let user = await User.findOne({ email: profile.emails[0].value });
+            if (!user) {
+                // If not, create a new user
+                user = new User({
+                    firstName: profile.name.givenName,
+                    lastName: profile.name.familyName,
+                    email: profile.emails[0].value,
+                    region: 'USA',
+                    password: null // Google login doesn't require password
+                });
+                await user.save();
             }
-            else {
-                new User({
-                    fullName: profile.displayName,
-                    googleId: profile.id,
-                    avatar: profile.photos[0].value
-                }).save().then((newUser) => {
-                    console.log('new user created' + new User);
-                    done(null, newUser)
-                })
-            }
-        })
+            return done(null, user);
+        } catch (error) {
+            return done(error, false);
+        }
     }
+));
 
+// Serialize user into the sessions
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
 
+// Deserialize user from the sessions
+passport.deserializeUser((id, done) => {
+    User.findById(id, (err, user) => {
+        done(err, user);
+    });
+});
 
-))
+module.exports = passport;

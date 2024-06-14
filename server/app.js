@@ -50,12 +50,13 @@ app.use(cookieParser())
 
 // Define routes
 app.use('/', Home);
+app.use('/', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/instructor', instructorRoutes)
 app.use('/api/course', courseRoutes)
 app.use('/payment', paymentRoutes)
 app.use('/api/purchasedcourse', purchasedCourseRoutes)
-app.use('/auth', authRoutes)
+
 
 //razorpay testing !!
 

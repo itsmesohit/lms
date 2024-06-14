@@ -167,7 +167,6 @@ const getOnlyReviewsForOneCourse = asyncHandler(async (req, res) => {
 
 })
 
-
 const adminGetSingleCourse = asyncHandler(async (req, res) => {
     if (!isValidObjectId(req.params.id)) {
         throw new Error("Invalid course id !!")
@@ -204,17 +203,6 @@ const adminDeleteSingleCourse = asyncHandler(async (req, res) => {
     const course = await Course.findByIdAndDelete(req.params.id);
     return res.status(200).json(new ApiResponse(200, {}, "Deleted Successfully !"))
 })
-
-
-
-
-
-
-
-
-
-
-
 
 module.exports = {
     createCourse, getAllCourse,

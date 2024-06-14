@@ -27,10 +27,6 @@ const Razorpay = require("razorpay")
 //     }))
 
 // })
-const razorpayInstance = new Razorpay({
-    key_id: process.env.RAZERPAY_API_KEY,
-    key_secret: process.env.RAZERPAY_SECRET
-})
 
 const renderProductPage = async (req, res) => {
 
@@ -44,42 +40,48 @@ const renderProductPage = async (req, res) => {
 
 }
 
+
+
 const createOrder = async (req, res) => {
     try {
-        const amount = req.body.amount
-        const options = {
-            amount: amount,
-            currency: 'INR',
-            receipt: 'razorUser@gmail.com'
+        const { amount, name, description } = req.body;
+
+        if (!amount || !name || !description) {
+            return res.status(400).send({ success: false, msg: 'All fields are required!' });
         }
 
-        razorpayInstance.orders.create(options,
-            (err, order) => {
-                if (!err) {
-                    res.status(200).send({
-                        success: true,
-                        msg: 'Order Created',
-                        order_id: order.id,
-                        amount: amount,
-                        key_id: RAZORPAY_ID_KEY,
-                        product_name: req.body.name,
-                        description: req.body.description,
-                        contact: "8567345632",
-                        name: "Sandeep Sharma",
-                        email: "sandeep@gmail.com"
-                    });
-                }
-                else {
-                    res.status(400).send({ success: false, msg: 'Something went wrong!' });
-                }
-            }
-        );
+        const razorpayInstance = new Razorpay({
+            key_id: process.env.RAZORPAY_ID_KEY,
+            key_secret: process.env.RAZORPAY_SECRET_KEY
+        });
 
+        const options = {
+            amount: amount * 100, // Amount should be in the smallest currency unit
+            currency: 'INR',
+            receipt: `receipt_order_${Math.floor(Math.random() * 10000)}`
+        };
+
+        const order = await razorpayInstance.orders.create(options);
+
+        res.status(200).send({
+            success: true,
+            msg: 'Order Created',
+            order_id: order.id,
+            amount: amount,
+            key_id: process.env.RAZORPAY_ID_KEY,
+            product_name: name,
+            description: description,
+            contact: "8567345632", // Ideally, get this from the request
+            name: "Sandeep Sharma", // Ideally, get this from the request
+            email: "sandeep@gmail.com" // Ideally, get this from the request
+        });
     } catch (error) {
         console.log(error.message);
+        res.status(500).send({ success: false, msg: 'Internal Server Error' });
     }
-
 }
+
+
 
 
 module.exports = { renderProductPage, createOrder }
