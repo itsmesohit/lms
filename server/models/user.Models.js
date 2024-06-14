@@ -9,13 +9,12 @@ const userSchema = new mongoose.Schema({
         //required: [true, "Username is required !"],
         unique: [true, "Username should be unique !"],
         trim: true,
-
     },
-    googelId: String,
+    googleId: String,
     email: {
         type: String,
-        required: [true, "Email is required !!"],
-        unique: [true, "Email is already exist !"],
+        //required: [true, "Email is required !!"],
+        // unique: [true, "Email is already exist !"],
         trim: true,
         lowercase: true,
     },
@@ -29,7 +28,7 @@ const userSchema = new mongoose.Schema({
     },
     gender: {
         type: String,
-        required: [true, "Gender is required !!"],
+        // required: [true, "Gender is required !!"],
     },
     role: {
         type: String,
