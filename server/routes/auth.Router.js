@@ -3,7 +3,7 @@ const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const router = express.Router();
 
-router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
 router.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: '/login', session: false }),
@@ -14,7 +14,7 @@ router.get('/auth/google/callback',
         res.cookie('token', token);
 
         // Redirect to dashboard
-        res.redirect('/');
+        res.redirect('/home');
     }
 );
 
@@ -24,6 +24,7 @@ router.get('/auth/success', (req, res) => {
         message: 'Google Authentication Successful',
         token: req.cookies.token
     });
+    res.redirect('/home');
 });
 
 router.get('/logout', (req, res) => {
